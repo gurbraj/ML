@@ -27,8 +27,8 @@ import matplotlib.pyplot as plt
 df=pd.read_csv('ex1data1.txt')
 
 plt.scatter(df['population'],df['profit'], label='Loaded from file!')
-plt.xlabel('population')
-plt.ylabel('profit')
+plt.xlabel('x')
+plt.ylabel('y')
 plt.title('regression in one varibel \n by use of batch gradient descent ')
 #plt.legend()
 #plt.show()
@@ -37,6 +37,7 @@ plt.title('regression in one varibel \n by use of batch gradient descent ')
 
 
 ###start implementing batch gradient descent. OLS in one variable
+#could be implemented with a while loop as well that stops when the cost functions are arbitrarly close to each other
 def least_squares(df, theta0=0, theta1=0, alpha=0.01, iterations=1500):
     x=df.population
     y=df.profit
@@ -51,11 +52,11 @@ def least_squares(df, theta0=0, theta1=0, alpha=0.01, iterations=1500):
         theta1=theta1-alpha*sum((theta0+theta1*x-y)*x)/m
         cost=(1/(2*m))*sum((theta0 +theta1*x-y)**2)
         cost_list.append(cost)
-    return theta0,theta1
+    return theta0,theta1, range(0, iterations), cost_list
 
 
 
-theta0, theta1=least_squares(df)
+theta0, theta1, iterations_array, cost_list=least_squares(df)
 
 x=range(0, 25)
 y=[]
@@ -63,5 +64,12 @@ for i in x:
     y.append(theta0+theta1*i)
 
 plt.plot(x,y, label='regression')
+plt.legend()
+plt.show()
+
+plt.plot(iterations_array, cost_list, label='cost function against iterations')
+plt.title("the cost function is monotonically decreasing with iterations")
+plt.xlabel('iterations')
+plt.ylabel('cost function')
 plt.legend()
 plt.show()
