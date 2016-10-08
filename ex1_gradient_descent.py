@@ -99,17 +99,18 @@ plt.show()
 #first we are going to feature normalize by subtracting mean and dividing by std dev below is just example. I integrate it in the function.
 #                                   do not do the normalization on the dependent variable
 import pandas as pd
+import numpy as np
 df1=pd.read_csv('ex1data2.txt')
 
-size_series=(df1['size']-df1['size'].mean())/df1['size'].std()
-bedrooms_series=(df1['#bedrooms']-df1['#bedrooms'].mean())/df1['#bedrooms'].std()
-
-df1['size']=size_series
-df1['#bedrooms']=bedrooms_series
+# size_series=(df1['size']-df1['size'].mean())/df1['size'].std()
+# bedrooms_series=(df1['#bedrooms']-df1['#bedrooms'].mean())/df1['#bedrooms'].std()
+#
+# df1['size']=size_series
+# df1['#bedrooms']=bedrooms_series
 
 
 #below is general, including the mean normalization
-def multivariate_regression(df, alpha=0.01, iterations=1500,Y_name='price'):
+def multivariate_regression(df, alpha=0.01, iterations=5000,Y_name='price'):
     df1=df
 
     column_names=df1.columns.tolist()
@@ -140,13 +141,13 @@ def multivariate_regression(df, alpha=0.01, iterations=1500,Y_name='price'):
 
     #as_matrix has to be done on the series becuse othervise the .dot method does not work!!!!
 
-    common_vector=(X_df.dot(theta_series.as_matrix())-Y_series)/m
+    common_vector=(X_df.dot(theta_series.as_matrix())-Y_series)
 
     cost=sum((X_df.dot(theta_series.as_matrix())-Y_series)**2)/(m*2)
 
     derivatives=[]
     for column_name in column_names:
-        derivative=common_vector.dot(X_df[column_name].as_matrix())
+        derivative=common_vector.dot(X_df[column_name].as_matrix())/m
         derivatives.append(derivative)
 
     #so inital derivatives calculated
@@ -157,10 +158,22 @@ def multivariate_regression(df, alpha=0.01, iterations=1500,Y_name='price'):
         for j in range(0, len(theta_series)):
             theta_series[j]=theta_series[j]-alpha*derivatives[j]
 
-    return theta_series
+    return theta_series.as_matrix()
 
         #outputs 0    5106000
 #1    1569000
 #2     811500
 #dtype: int64
 #now, is reasonable at a first glance. almost done, but need to verify more.
+
+###lesson: load with pandas, but when doing the matrix operations convert it first.
+def multivariate_predictor(siz,bedrooms):
+
+    siz_normal=(siz-df1['size'].mean())/df1['size'].std()
+    bedrooms_normal=(bedrooms-df1['#bedrooms'].mean())/df1['#bedrooms'].std()
+
+    arguments_array=np.array([1, siz_normal, bedrooms_normal])
+
+    theta_series=multivariate_regression(df1)
+
+    return np.dot(arguments_array,theta_series.T)
