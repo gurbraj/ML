@@ -95,40 +95,43 @@ ax1.set_zlabel('costfunction')
 plt.show()
 
 
-#####now linear regression with multiple variables (change datafiles to name the colomns.)
-#first we are going to feature normalize by subtracting mean and dividing by std dev
+#####now linear regression with multiple variables (i have modified the datafiles to name the colomns.)
+#first we are going to feature normalize by subtracting mean and dividing by std dev below is just example. I integrate it in the function.
+#                                   do not do the normalization on the dependent variable
 import pandas as pd
 df1=pd.read_csv('ex1data2.txt')
 
 size_series=(df1['size']-df1['size'].mean())/df1['size'].std()
 bedrooms_series=(df1['#bedrooms']-df1['#bedrooms'].mean())/df1['#bedrooms'].std()
-price_series=(df1['price']-df1['price'].mean())/df1['price'].std()
 
 df1['size']=size_series
 df1['#bedrooms']=bedrooms_series
-df1['price']=price_series
-##had a lot of trouble using concat or to simply just populate a new dataframe
+
+
 #below is general, including the mean normalization
 def multivariate_regression(df, alpha=0.01, iterations=1500,Y_name='price'):
     df1=df
 
     column_names=df1.columns.tolist()
-    #mean normalization
-    for i in range(0,len(column_names)):
-        column_name=column_names[i]
-        df1[column_name]=(df1[column_name]-df1[column_name].mean())/df1[column_name].std()
 
-    #filll X with intercept with 1's so that we can smoothtly use matrix algebra
-    df1['intercept']=1
-    column_names=['intercept']+ column_names
     #split the data into a X dataFrame and a y series
     column_names.remove(Y_name)
-    X_df=df[column_names]
-    Y_series=df[Y_name]
+    X_df=df1[column_names]
+    Y_series=df1[Y_name]
+
+    #mean normalization
+    for column_name in column_names:
+        X_df[column_name]=(X_df[column_name]-X_df[column_name].mean())/X_df[column_name].std()
 
 
-    m=len(df['intercept'])
-    #initialize thetas
+    #filll X with intercept with 1's so that we can smoothly use matrix algebra AND update column_names
+    X_df['intercept']=1
+    column_names=['intercept']+ column_names
+
+
+    #m -training examples
+    m=len(X_df['intercept'])
+    #initialize thetas with 0's
     theta_list=[]
     for i in column_names:
         theta_list.append(0)
@@ -138,7 +141,9 @@ def multivariate_regression(df, alpha=0.01, iterations=1500,Y_name='price'):
     #as_matrix has to be done on the series becuse othervise the .dot method does not work!!!!
 
     common_vector=(X_df.dot(theta_series.as_matrix())-Y_series)/m
-    cost=sum((common_vector**2)/2)
+
+    cost=sum((X_df.dot(theta_series.as_matrix())-Y_series)**2)/(m*2)
+
     derivatives=[]
     for column_name in column_names:
         derivative=common_vector.dot(X_df[column_name].as_matrix())
@@ -147,11 +152,15 @@ def multivariate_regression(df, alpha=0.01, iterations=1500,Y_name='price'):
     #so inital derivatives calculated
     #todo: compute inital cost function       , updating rule, stopping condition
 
-
-    for i in iterations:
+    #import pdb; pdb.set_trace()
+    for i in range(0,iterations):
         for j in range(0, len(theta_series)):
             theta_series[j]=theta_series[j]-alpha*derivatives[j]
 
     return theta_series
 
-        ##tired of multivariable case. look over in future.
+        #outputs 0    5106000
+#1    1569000
+#2     811500
+#dtype: int64
+#now, is reasonable at a first glance. almost done, but need to verify more.
