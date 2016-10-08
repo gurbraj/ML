@@ -141,11 +141,12 @@ def multivariate_regression(df, alpha=0.01, iterations=5000,Y_name='price'):
 
     #as_matrix has to be done on the series becuse othervise the .dot method does not work!!!!
 
-    common_vector=(X_df.dot(theta_series.as_matrix())-Y_series)
 
     cost=sum((X_df.dot(theta_series.as_matrix())-Y_series)**2)/(m*2)
 
+    #initalize derivatives
     derivatives=[]
+    common_vector=(X_df.dot(theta_series.as_matrix())-Y_series)
     for column_name in column_names:
         derivative=common_vector.dot(X_df[column_name].as_matrix())/m
         derivatives.append(derivative)
@@ -155,8 +156,16 @@ def multivariate_regression(df, alpha=0.01, iterations=5000,Y_name='price'):
 
     #import pdb; pdb.set_trace()
     for i in range(0,iterations):
+        #for every iteration need to update the derivatives. i do this by : for every iteration compute the common vector that is used for computing all derivatives. then, for every independent variable(incl intercept) update the derivatives.
+        common_vector=(X_df.dot(theta_series.as_matrix())-Y_series)
+
         for j in range(0, len(theta_series)):
+            variable=column_names[j]
+            relevant_vector=X_df[variable].as_matrix()
+
+            derivatives[j]=common_vector.dot(relevant_vector)/m
             theta_series[j]=theta_series[j]-alpha*derivatives[j]
+            #update derivaties
 
     return theta_series.as_matrix()
 
@@ -167,6 +176,7 @@ def multivariate_regression(df, alpha=0.01, iterations=5000,Y_name='price'):
 #now, is reasonable at a first glance. almost done, but need to verify more.
 
 ###lesson: load with pandas, but when doing the matrix operations convert it first.
+#make smaller function got damn it. the functions should follow SOLID. be well constructed.
 def multivariate_predictor(siz,bedrooms):
 
     siz_normal=(siz-df1['size'].mean())/df1['size'].std()
