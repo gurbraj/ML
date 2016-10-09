@@ -14,7 +14,7 @@
 #        y.append(float(row[1]))
 
 # plt.scatter(x,y, label='Loaded from file!')
-# plt.xlabel('x')
+# plt.xlabel('x')K
 # plt.ylabel('y')
 # plt.title('imported withoud pandas \nCheck it out')
 # plt.legend()
