@@ -55,14 +55,32 @@ sigmoid_vectorized=np.vectorize(sigmoid)
 
 #1.2.2 implement the cost function and gradient for logistic regression.
 X,Y, theta_array=df_to_matrix(df)
-def cost(X,Y,theta_array):
-    list=[]
+def cost_and_gradient(X,Y,theta_array):
+    cost_list=[]
+    common_term_for_derivatives_list=[]
     m=len(Y)
     for i in range(0,len(Y)):
         h_theta=sigmoid(np.dot(theta_array,X[i]))
+        term=(-Y[i]*math.log(h_theta)-(1-Y[i])*math.log(1-h_theta))/m
+        cost_list.append(term)
 
-        term=-Y[i]*math.log(h_theta)-(1-Y[i])*math.log(1-h_theta)
-        list.append(term)
-    return sum(list)/m
+        #do some work on the gradient
+        common_term_for_derivatives=(h_theta-Y[i])/m
+        common_term_for_derivatives_list.append(common_term_for_derivatives)
+        #
+
+    cost=sum(cost_list)
+
+    #gradient
+    gradient=[]
+    #datastructure change so that we can use dot prodcut
+    common_term_for_derivatives_array=np.array(common_term_for_derivatives_list)
+    for j in range(0, len(theta_array)):
+        derivative=np.dot(common_term_for_derivatives_array,X[:,j])
+        gradient.append(derivative)
+
+    gradient=np.array(gradient)
+
+    return cost, gradient
 
 #initial check works out
