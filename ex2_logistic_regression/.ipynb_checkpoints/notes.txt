@@ -1,0 +1,5 @@
+try:
+            term=(-Y[i]*math.log(h_theta)-(1-Y[i])*math.log(1-h_theta))/m
+        except ValueError:
+            import pdb
+            pdb.set_trace()
