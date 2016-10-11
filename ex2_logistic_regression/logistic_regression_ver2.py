@@ -30,7 +30,6 @@ plt.show()
 def df_to_matrix(df,Y_name='y', theta_array=[]):
     column_names=df.columns.tolist()
     column_names.remove(Y_name)
-
     X_df=df[column_names]
     X_df['intercept']=1
     X_column_names=['intercept']+ column_names
@@ -63,7 +62,9 @@ from scipy.special import expit as sigmoid
 
 
 #1.2.2 implement the cost function and gradient for logistic regression.
-def cost_function(theta_array,X,Y):
+#regularize by setting l=0 in the argument
+#Note that you should not regularize the parameter theta_array[0]!! i,e use theta_array[1:]
+def cost_function(theta_array,X,Y, l=0):
     cost_list=[]
 
     m=len(Y)
@@ -73,11 +74,12 @@ def cost_function(theta_array,X,Y):
         cost_list.append(term)
 
 
-    cost=sum(cost_list)
+    cost=sum(cost_list)+(l/(2*m))*(l/(2*m))*np.dot(theta_array[1:].T,theta_array[1:])
 
     return float(cost)
 
-#second approach for computing the cost function. they both work.
+#second approach for computing the cost function. they both work. (though i did not extend cost_function2 to include lambda)
+
 def cost_function2(theta_array, X,Y):
     m=len(Y)
     h_x=sigmoid(np.dot(X,theta_array.T))
@@ -87,7 +89,8 @@ def cost_function2(theta_array, X,Y):
 
     return (term1-term2)/m
 
-def gradient_function(theta_array,X,Y):
+#Note that you should not regularize the parameter theta_array[0]!! hence the if-else clausul
+def gradient_function(theta_array,X,Y, l=0):
 
     common_term_for_derivatives_list=[]
     m=len(Y)
@@ -104,7 +107,12 @@ def gradient_function(theta_array,X,Y):
     #datastructure change so that we can use dot prodcut
     common_term_for_derivatives_array=np.array(common_term_for_derivatives_list)
     for j in range(0, len(theta_array)):
-        derivative=np.dot(common_term_for_derivatives_array,X[:,j])
+        #Note that you should not regularize the parameter theta_array[0]!! hence the if-else clausul below
+        if j==0:
+            derivative=np.dot(common_term_for_derivatives_array,X[:,j])
+        else:
+            derivative=np.dot(common_term_for_derivatives_array,X[:,j]) +(l/m)*theta_array[j]
+
         gradient.append(derivative)
 
     gradient=np.array(gradient)
@@ -122,8 +130,8 @@ def gradient_function(theta_array,X,Y):
 #but in the gradient_descent function i have two whileloops just to make it stop
 #incase the costfunction is not convex => no convergence
 
-def optimal_thetas(theta_array,X,Y):
-    result = optimize.fmin(cost_function, x0=theta_array, args=(X, Y), maxiter=400, full_output=True)
+def optimal_thetas(theta_array,X,Y,iterations=400):
+    result = optimize.fmin(cost_function, x0=theta_array, args=(X, Y), maxiter=iterations, full_output=True)
     return result[0], result[1]
 
 
@@ -196,12 +204,15 @@ classification_plot(microchip_test_df)
 
 #2.2 Feature mapping
 #One way to fit the data better is to create more features from each data point.
-X_df_copy=microchip_test_df[['test_1','test_2']].copy()
-X_df_copy.columns=['x1','x2']
+X_df_copy=microchip_test_df.copy()
+X_df_copy.columns=['x1','x2', 'y']
 series1=X_df_copy['x1']
 series2=X_df_copy['x2']
 
 def mapfeature_binominal(series1,series2,n=6):
+
+    #a bit hacky admitedely, but here i though about puting for when the code when series1 and series2 are arrays
+    # consider the principle of SOLID, Open to change. perhaps i should have done this function more general. but on the other hand this was a challenging function to make:make it work, and then optimize it.
 
     if n==1:
         return
@@ -217,4 +228,51 @@ def mapfeature_binominal(series1,series2,n=6):
 
 
 mapfeature_binominal(series1,series2)
-#this works, but does not give the same order as those in the instrucionts.
+#^^this works, but does not give the same order as those in the instrucionts.
+#note that im not returning anything in the case of series, but only modiyfing
+X_reg, Y_reg, theta_array=df_to_matrix(X_df_copy)
+
+
+#You should see that the cost is about 0.693. (again)
+#cost_function(theta_array,X_reg,Y_reg) works.
+
+#now time to optimize the thetas.
+
+theta_array_opti_reg, minimal_cost_reg=optimal_thetas(theta_array,X_reg,Y_reg,iterations=100000)
+#lool needad alot of iterations! lesson: regulators cost alot in terms of complexity
+
+#in order to do the actual prediction i need to modify the mapfeature_binominal function, so that it takes (x1,x2)-> array of their binominial combinations
+#this is neccesarr in order for sigmoid(np.dot(theta_array_opti_reg,[x1,x2])) to make sense.
+
+def mapfeature_binominal_array(x1,x2,n=6,lst=None):
+
+    #a bit hacky admitedely, but here i though about puting for when the code when series1 and series2 are arrays
+    # consider the principle of SOLID, Open to change. perhaps i should have done this function more general. but on the other hand this was a challenging function to make:make it work, and then optimize it.
+    if len(lst)==None:
+        #dont forget the x0=1
+        lst.append(1)
+        lst.append(x1)
+        lst.append(x2)
+
+    if n==1:
+        print(np.array(lst))
+        return np.array(lst)
+    else:
+        for i in range(0,n+1):
+            formula=((x1)**(n-i))*((x2)**(i))
+            lst.append(formula)
+
+
+        return mapfeature_binominal_array(x1,x2,n-1,lst)
+
+test_array=mapfeature_binominal_array(-0.25,1.5)
+#it prints out but wtf n return
+test_array=np.array([1,-0.25, 1.5, 0.000244140625, -0.00146484375, 0.0087890625, -0.052734375, 0.31640625, -1.8984375, 11.390625, -0.0009765625, 0.005859375, -0.03515625, 0.2109375, -1.265625, 7.59375, 0.00390625, -0.0234375, 0.140625, -0.84375, 5.0625, -0.015625, 0.09375, -0.5625, 3.375, 0.0625, -0.375, 2.25])
+
+sigmoid(np.dot(theta_array_opti_reg.T,test_array))==1 #as the pdf.
+
+
+
+
+#time to plot the decisionboundary
+#remains to do that, and to plt with different lambdas. will do some other day!
