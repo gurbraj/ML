@@ -166,3 +166,55 @@ plt.ylabel(column_names[1])
 plt.title('visualization of the dataset we \n are going to use for logistic regression')
 #plt.legend()
 #plt.show()
+
+
+##2 Regularized logistic regression
+#In this part of the exercise, you will implement regularized logistic regression to predict whether microchips from a fabrication plant passes quality assur- ance (QA). During QA, each microchip goes through various tests to ensure it is functioning correctly.
+#Suppose you are the product manager of the factory and you have the test results for some microchips on two different tests. From these two tests, you would like to determine whether the microchips should be accepted or rejected.
+
+#add column_names on the datafile
+
+microchip_test_df=pd.read_csv('ex2data2.txt')
+
+def classification_plot(df, title='plot of the training data'):
+    column_names=df.columns.tolist()
+    y_name=column_names[-1]
+
+    X_sth_y0=df[df[y_name]==0]
+    X_sth_y1=df[df[y_name]==1]
+
+    plt.scatter(X_sth_y1[column_names[0]], X_sth_y1[column_names[1]], label="label 1", color="blue")
+    plt.scatter(X_sth_y0[column_names[0]], X_sth_y0[column_names[1]], label="label 0", color="red")
+    plt.xlabel(column_names[0])
+    plt.ylabel(column_names[1])
+    plt.title(title)
+    plt.legend()
+    plt.show()
+
+classification_plot(microchip_test_df)
+
+
+#2.2 Feature mapping
+#One way to fit the data better is to create more features from each data point.
+X_df_copy=microchip_test_df[['test_1','test_2']].copy()
+X_df_copy.columns=['x1','x2']
+series1=X_df_copy['x1']
+series2=X_df_copy['x2']
+
+def mapfeature_binominal(series1,series2,n=6):
+
+    if n==1:
+        return
+    else:
+        for i in range(0,n+1):
+            #name=str((n-i)) + " 1's * " + str(i)+ " 2's"
+            name='x1**'+str((n-i)) +"*"+ "x2**"+str(i)
+            formula=((series1)**(n-i))*((series2)**(i))
+
+            X_df_copy[name]=formula
+
+        mapfeature_binominal(series1,series2,n-1)
+
+
+mapfeature_binominal(series1,series2)
+#this works, but does not give the same order as those in the instrucionts.
