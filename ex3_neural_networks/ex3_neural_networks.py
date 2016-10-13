@@ -21,13 +21,17 @@ X, Y= mat['X'], mat['y']
 
 def display_data(X,Y,sample_rows=400):
     row_len_X=len(X)
-
+    list=[]
     random_index=random.sample(range(0,4000), sample_rows)
-    X_row=X[1000,:]
-    X_row_matrix=np.reshape(X_row,(20,20))
-    img=scipy.misc.toimage(X_row_matrix.T)
 
-    for i in range(0,rows):
 
+    for i in random_index:
         random_row=X[i][:]
-        for j in range(0,rows):
+        X_row_matrix=np.reshape(random_row,(20,20)).T
+        img=scipy.misc.toimage(X_row_matrix)
+        list.append(img)
+        
+
+    picture=np.array(list)
+
+    return picture

@@ -1,24 +1,24 @@
 #Before starting on any task, it is often useful to understand the data by visualizing it, two ways shown  below.
 
 ##importing data and plotting it (without pandas)
-#import matplotlib.pyplot as plt
-#import csv
-
-#x=[]
-#y=[]
-
-#with open('ex1data1.txt','r') as csvfile:
+# import matplotlib.pyplot as plt
+# import csv
+#
+# x=[]
+# y=[]
+#
+# with open('ex1data1.txt','r') as csvfile:
 #    plots=csv.reader(csvfile, delimiter=',')
 #    for row in plots:
 #        x.append(float(row[0]))
 #        y.append(float(row[1]))
-
+#
 # plt.scatter(x,y, label='Loaded from file!')
 # plt.xlabel('x')K
 # plt.ylabel('y')
 # plt.title('imported withoud pandas \nCheck it out')
 # plt.legend()
-#plt.show()
+# plt.show()
 ########
 
 ##import data and plot it (using pandas)
