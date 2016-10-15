@@ -74,7 +74,7 @@ def cost_function(theta_array,X,Y, l=0):
         cost_list.append(term)
 
 
-    cost=sum(cost_list)+(l/(2*m))*(l/(2*m))*np.dot(theta_array[1:].T,theta_array[1:])
+    cost=sum(cost_list)+(l/(2*m))+(l/(2*m))*np.dot(theta_array[1:].T,theta_array[1:])
 
     return float(cost)
 
@@ -266,7 +266,7 @@ def mapfeature_binominal_array(x1,x2,n=6,lst=None):
         return mapfeature_binominal_array(x1,x2,n-1,lst)
 
 test_array=mapfeature_binominal_array(-0.25,1.5)
-#it prints out but wtf n return
+
 test_array=np.array([1,-0.25, 1.5, 0.000244140625, -0.00146484375, 0.0087890625, -0.052734375, 0.31640625, -1.8984375, 11.390625, -0.0009765625, 0.005859375, -0.03515625, 0.2109375, -1.265625, 7.59375, 0.00390625, -0.0234375, 0.140625, -0.84375, 5.0625, -0.015625, 0.09375, -0.5625, 3.375, 0.0625, -0.375, 2.25])
 
 sigmoid(np.dot(theta_array_opti_reg.T,test_array))==1 #as the pdf.
