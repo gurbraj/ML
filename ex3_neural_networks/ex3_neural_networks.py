@@ -19,19 +19,50 @@ X, Y= mat['X'], mat['y']
 
 #1.2 Visualizing the data
 
-def display_data(X,Y,sample_rows=400):
-    row_len_X=len(X)
-    list=[]
+def display_data(X,Y,sample_rows=100):
+    #sample rows has to be square
+    
+    width=20
+    height=20
+
+    row_dim=int(np.sqrt(sample_rows)*height)
+    col_dim=row_dim
+
+    matrix=np.zeros((row_dim,col_dim)).astype(float)
+
     random_index=random.sample(range(0,4000), sample_rows)
 
-
+    row_i=0
+    col_i=0
     for i in random_index:
+        counter+=1
+
         random_row=X[i][:]
         X_row_matrix=np.reshape(random_row,(20,20)).T
-        img=scipy.misc.toimage(X_row_matrix)
-        list.append(img)
-        
 
-    picture=np.array(list)
+        matrix[ height*row_i : height*(row_i+1) , width*col_i : width*(col_i+1)]=X_row_matrix
+        #the submatrix shape will be 20 by 20. and from a given row, it will go columnwise
+        #(as opposed to the converse, namely that for a given column, go row-wise)
+        #there probably exists a name for this but i dont know it. drawing pictures help.
+        #for this submatrix (that is populated by zeros), assign it the X_row_matrix
 
-    return picture
+        col_i+=1
+        #for the given row_i, increment col_i
+
+        if col_i==matrix.shape[1]/height:
+            #i,e we have looped through col_i until the end of the col_dim
+            print('te')
+            row_i+=1
+            col_i=0
+            #then we want to reset the col index and start on a new row
+
+            #we do not need the same kind of reset-mechanism on row_i since random_index, by construction, has just the correct length
+
+    return matrix
+
+
+tst_matrix=display_data(X,Y)
+fig = plt.figure(figsize=(8,8))
+img_matrix=scipy.misc.toimage(tst_matrix)
+plt.imshow(img_matrix,cmap=plt.cm.Greys_r, interpolation='none')
+plt.show()
