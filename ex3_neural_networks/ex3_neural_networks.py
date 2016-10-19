@@ -21,7 +21,7 @@ X, Y= mat['X'], mat['y']
 
 def display_data(X,Y,sample_rows=100):
     #sample rows has to be square
-    
+
     width=20
     height=20
 
@@ -35,7 +35,7 @@ def display_data(X,Y,sample_rows=100):
     row_i=0
     col_i=0
     for i in random_index:
-        counter+=1
+
 
         random_row=X[i][:]
         X_row_matrix=np.reshape(random_row,(20,20)).T
@@ -51,7 +51,7 @@ def display_data(X,Y,sample_rows=100):
 
         if col_i==matrix.shape[1]/height:
             #i,e we have looped through col_i until the end of the col_dim
-            print('te')
+
             row_i+=1
             col_i=0
             #then we want to reset the col index and start on a new row
